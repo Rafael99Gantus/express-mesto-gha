@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const router = require('./routes/usersRoute');
+const routerUsers = require('./routes/usersRoute');
+const routerCards = require('./routes/cardsRoute');
 const bodyParser = require('body-parser');
 const { PORT = 9090, BASE_PATH } = process.env;
 
@@ -16,10 +17,11 @@ mongoose.connect("mongodb://127.0.0.1:27017/mestodb")
   console.error("Ошибка подключения:", err.message);
 });
 
-app.use('/users', router)
+app.use('/users', routerUsers)
+app.use('/cards', routerCards)
 app.use((req, res, next) => {
   req.user = {
-    _id: '5d8b8592978f8bd833ca8133' // вставьте сюда _id созданного в предыдущем пункте пользователя
+    _id: '65848aec59f92c95bec45120' // вставьте сюда _id созданного в предыдущем пункте пользователя
   };
 
   next();
