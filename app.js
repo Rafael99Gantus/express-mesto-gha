@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const routerUsers = require('./routes/usersRoute');
 const routerCards = require('./routes/cardsRoute');
 const bodyParser = require('body-parser');
-const { PORT = 9090, BASE_PATH } = process.env;
+const { PORT = 3000, BASE_PATH } = process.env;
 
 const app = express();
 app.use(bodyParser.json());
