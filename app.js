@@ -27,6 +27,5 @@ app.use("/users", routerUsers);
 app.use("/cards", routerCards);
 
 app.listen(PORT, () => {
-  console.log("Ссылка на сервер");
-  console.log(PORT);
+  console.log(`Ссылка на сервер: ${PORT}`);
 });

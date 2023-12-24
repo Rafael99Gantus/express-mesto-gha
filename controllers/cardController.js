@@ -9,12 +9,14 @@ const ERROR_404 = "Не найдено";
 const ERROR_400 = "Переданы некорректные данные";
 
 module.exports.getCards = (req, res) => {
+  console.log("getCards");
   Card.find({})
     .then((cards) => res.send({ data: cards }))
     .catch(() => res.status(500).send({ message: ERROR_500 }));
 };
 
 module.exports.getCardsId = (req, res) => {
+  console.log("getCardsId");
   Card.findById(req.params.id)
     .then((card) => res.send({ data: card }))
     .catch((err) => {
@@ -27,6 +29,7 @@ module.exports.getCardsId = (req, res) => {
 };
 
 module.exports.postCard = (req, res) => {
+  console.log("postCard");
   const { name, link } = req.body;
 
   Card.create({ name, link })

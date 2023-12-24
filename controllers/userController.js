@@ -10,14 +10,15 @@ const ERROR_404 = "Не найдено";
 const ERROR_400 = "Переданы некорректные данные";
 
 module.exports.getUsers = (req, res) => {
+  console.log("getUsers");
   User.find({})
     .then((users) => res.send({ data: users }))
     .catch(() => res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: ERROR_500 }));
 };
 
 module.exports.getUsersId = (req, res) => {
-  console.log(req.params.id);
-  User.findById(req.params.id)
+  console.log("getUsersId");
+  User.findById(req.params._id)
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === "DocumentNotFoundError") {
@@ -29,6 +30,7 @@ module.exports.getUsersId = (req, res) => {
 };
 
 module.exports.postUser = (req, res) => {
+  console.log("postUser");
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
