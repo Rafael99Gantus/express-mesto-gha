@@ -16,9 +16,9 @@ module.exports.changeLike = (req, res) => {
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
     { new: true },
   )
-    .then((card) => res.send({ data: card }))
+    .then((card) => res.status(http2.constants.HTTP_STATUS_OK).send({ data: card }))
     .catch((err) => {
-      if (err.name === "DocumentNotFoundError") {
+      if (err.name === "CastError") {
         res.status(http2.constants.HTTP_STATUS_NOT_FOUND).send({ message: ERROR_404 });
         return;
       }
@@ -37,13 +37,13 @@ module.exports.patchMe = (req, res) => {
       runValidators: true,
     },
   )
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.status(http2.constants.HTTP_STATUS_OK).send({ data: user }))
     .catch((err) => {
       if (err.name === "ValidationError") {
         res.status(http2.constants.HTTP_STATUS_BAD_REQUEST).send({ message: ERROR_400 });
         return;
       }
-      if (err.name === "DocumentNotFoundError") {
+      if (err.name === "CastError") {
         res.status(http2.constants.HTTP_STATUS_NOT_FOUND).send({ message: ERROR_404 });
         return;
       }
@@ -62,13 +62,13 @@ module.exports.patchMyAvatar = (req, res) => {
       runValidators: true,
     },
   )
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.status(http2.constants.HTTP_STATUS_OK).send({ data: user }))
     .catch((err) => {
       if (err.name === "ValidationError") {
         res.status(http2.constants.HTTP_STATUS_BAD_REQUEST).send({ message: ERROR_400 });
         return;
       }
-      if (err.name === "DocumentNotFoundError") {
+      if (err.name === "CastError") {
         res.status(http2.constants.HTTP_STATUS_NOT_FOUND).send({ message: ERROR_404 });
         return;
       }
