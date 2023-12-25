@@ -45,7 +45,7 @@ module.exports.deleteCard = async (req, res) => {
     const { cardId } = req.params;
     console.log("deleteCard");
     await Card.deleteOne({ _id: cardId }).orFail(() => new NotFoundError(`${ERROR_404}`));
-    return res.status(http2.constants.HTTP_STATUS_OK).send(cardId);
+    return res.status(http2.constants.HTTP_STATUS_OK).json(cardId);
   } catch (error) {
     if (error.name === "CastError") {
       return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST)
