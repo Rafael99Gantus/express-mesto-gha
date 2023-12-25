@@ -21,7 +21,7 @@ module.exports.changeLike = async (req, res) => {
     ).orFail(new NotFoundError({ message: ERROR_404 }));
     res.status(http2.constants.HTTP_STATUS_OK).send(cardId);
   } catch (error) {
-    if (error.name === "ValidationError") {
+    if (error.name === "CastError") {
       res.status(http2.constants.HTTP_STATUS_BAD_REQUEST).send({ message: ERROR_400 });
       return;
     }
