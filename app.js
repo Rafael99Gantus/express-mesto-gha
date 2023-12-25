@@ -21,6 +21,10 @@ app.use((req, res, next) => {
     _id: "65848aec59f92c95bec45120",
   };
 
+  app.use(() => {
+    res.status(404).json({ message: "Страница не найдена" });
+  });
+
   next();
 });
 app.use("/users", routerUsers);
