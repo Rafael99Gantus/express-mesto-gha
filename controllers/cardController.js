@@ -40,6 +40,25 @@ module.exports.getCardsId = async (req, res) => {
   }
 };
 
+module.exports.deleteCard = async (req, res) => {
+  try {
+    console.log("deleteCard");
+    const cardId = await Card.findById(req.params.cardId).orFail(() => new NotFoundError(`${ERROR_404}`));
+    return res.status(http2.constants.HTTP_STATUS_OK).send(cardId);
+  } catch (error) {
+    if (error.name === "CastError") {
+      return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST)
+        .send({ message: ERROR_400 });
+    }
+    if (error.name === "NotFoundError") {
+      return res.status(404)
+        .send({ message: ERROR_404 });
+    }
+    return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
+      .send({ message: ERROR_500 });
+  }
+};
+
 module.exports.postCard = async (req, res) => {
   try {
     console.log("postCard");
