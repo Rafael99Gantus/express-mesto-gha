@@ -31,6 +31,10 @@ module.exports.getCardsId = async (req, res) => {
       return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST)
         .send({ message: ERROR_400 });
     }
+    if (error.name === "NotFoundError") {
+      return res.status(404)
+        .send({ message: ERROR_404 });
+    }
     return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
       .send({ message: ERROR_500 });
   }

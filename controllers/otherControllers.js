@@ -35,7 +35,7 @@ module.exports.patchMe = async (req, res) => {
       req.user._id,
       { name, about },
       { new: true, runValidators: true },
-    );
+    ).orFail(new NotFoundError({ message: ERROR_404 }));
     res.status(http2.constants.HTTP_STATUS_OK).send(updatedUser);
   } catch (error) {
     if (error.name === "ValidationError") {
@@ -57,7 +57,7 @@ module.exports.patchMyAvatar = async (req, res) => {
       req.user._id,
       { avatar },
       { new: true, runValidators: true },
-    );
+    ).orFail(new NotFoundError({ message: ERROR_404 }));
     res.status(http2.constants.HTTP_STATUS_OK).send(updatedUser);
   } catch (error) {
     if (error.name === "ValidationError") {
