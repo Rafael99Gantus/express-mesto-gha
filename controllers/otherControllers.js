@@ -4,6 +4,8 @@ const Card = require("../models/card");
 
 const User = require("../models/user");
 
+const NotFoundError = require("../utils/NotFoundError");
+
 const ERROR_500 = "Произошла ошибка";
 
 const ERROR_404 = "Не найдено";
@@ -26,52 +28,38 @@ module.exports.changeLike = (req, res) => {
     });
 };
 
-module.exports.patchMe = (req, res) => {
-  const { name, about } = req.body;
-  console.log(req.params.id);
-  User.findByIdAndUpdate(
-    req.params.id,
-    { name, about },
-    {
-      new: true, // обработчик then получит на вход обновлённую запись
-      runValidators: true,
-    },
-  )
-    .then((user) => res.status(http2.constants.HTTP_STATUS_OK).send({ data: user }))
-    .catch((err) => {
-      if (err.name === "ValidationError") {
-        res.status(http2.constants.HTTP_STATUS_BAD_REQUEST).send({ message: ERROR_400 });
-        return;
-      }
-      if (err.name === "CastError") {
-        res.status(http2.constants.HTTP_STATUS_NOT_FOUND).send({ message: ERROR_404 });
-        return;
-      }
-      res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: ERROR_500 });
-    });
+module.exports.patchMe = async (req, res) => {
+  try {
+    const { name, about } = req.body;
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      { name, about },
+      { new: true, runValidators: true },
+    ).orFail(new NotFoundError({ message: ERROR_404 }));
+    res.status(http2.constants.HTTP_STATUS_OK).send(updatedUser);
+  } catch (error) {
+    if (error.name === "ValidationError") {
+      res.status(http2.constants.HTTP_STATUS_BAD_REQUEST).send({ message: ERROR_400 });
+      return;
+    }
+    res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: ERROR_500 });
+  }
 };
 
-module.exports.patchMyAvatar = (req, res) => {
-  const { avatar } = req.body;
-  console.log(req.params.id);
-  User.findByIdAndUpdate(
-    req.params.id,
-    { avatar },
-    {
-      new: true,
-      runValidators: true,
-    },
-  )
-    .then((user) => res.status(http2.constants.HTTP_STATUS_OK).send({ data: user }))
-    .catch((err) => {
-      if (err.name === "ValidationError") {
-        res.status(http2.constants.HTTP_STATUS_BAD_REQUEST).send({ message: ERROR_400 });
-        return;
-      }
-      if (err.name === "CastError") {
-        res.status(http2.constants.HTTP_STATUS_NOT_FOUND).send({ message: ERROR_404 });
-        return;
-      }
-      res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: ERROR_500 });
-    });
+module.exports.patchMyAvatar = async (req, res) => {
+  try {
+    const { avatar } = req.body;
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id,
+      { avatar },
+      { new: true, runValidators: true },
+    );
+    res.status(http2.constants.HTTP_STATUS_OK).send(updatedUser);
+  } catch (error) {
+    if (error.name === "ValidationError") {
+      res.status(http2.constants.HTTP_STATUS_BAD_REQUEST).send({ message: ERROR_400 });
+      return;
+    }
+    res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: ERROR_500 });
+  }
 };
