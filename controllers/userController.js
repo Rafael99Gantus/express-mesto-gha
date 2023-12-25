@@ -24,15 +24,19 @@ module.exports.getUsers = async (req, res) => {
 
 module.exports.getUsersId = async (req, res) => {
   try {
-    const userId = await User.findById(req.params.usersId);
-    return res.status(http2.constants.HTTP_STATUS_OK).send(userId)
-      .orFail(() => new NotFoundError(`${ERROR_404}`));
+    const { usersId } = req.params;
+    const userId = await User.findById(usersId).orFail(() => new NotFoundError(`${ERROR_404}`));
+    return res.status(http2.constants.HTTP_STATUS_OK).send(userId);
   } catch (error) {
     if (error.name === "CastError") {
       return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST)
         .send({ message: ERROR_400 });
     }
-    return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: ERROR_500 });
+    if (error.name === "NotFoundError") {
+      return res.status(404)
+        .send({ message: ERROR_404 });
+    }
+    return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: ERROR_500, error: error.name });
   }
 };
 

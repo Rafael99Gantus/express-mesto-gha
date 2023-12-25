@@ -35,11 +35,15 @@ module.exports.patchMe = async (req, res) => {
       req.user._id,
       { name, about },
       { new: true, runValidators: true },
-    ).orFail(new NotFoundError({ message: ERROR_404 }));
+    );
     res.status(http2.constants.HTTP_STATUS_OK).send(updatedUser);
   } catch (error) {
     if (error.name === "ValidationError") {
       res.status(http2.constants.HTTP_STATUS_BAD_REQUEST).send({ message: ERROR_400 });
+      return;
+    }
+    if (error.name === "NotFoundError") {
+      res.status(http2.constants.HTTP_STATUS_NOT_FOUND).send({ message: ERROR_404 });
       return;
     }
     res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: ERROR_500 });
@@ -58,6 +62,10 @@ module.exports.patchMyAvatar = async (req, res) => {
   } catch (error) {
     if (error.name === "ValidationError") {
       res.status(http2.constants.HTTP_STATUS_BAD_REQUEST).send({ message: ERROR_400 });
+      return;
+    }
+    if (error.name === "NotFoundError") {
+      res.status(http2.constants.HTTP_STATUS_NOT_FOUND).send({ message: ERROR_404 });
       return;
     }
     res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: ERROR_500 });

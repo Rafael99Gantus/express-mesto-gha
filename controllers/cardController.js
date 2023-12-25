@@ -24,9 +24,8 @@ module.exports.getCards = async (req, res) => {
 module.exports.getCardsId = async (req, res) => {
   try {
     console.log("getCardsId");
-    const cardId = await Card.findById(req.params.cardId);
-    return res.status(http2.constants.HTTP_STATUS_OK).send(cardId)
-      .orFail(() => new NotFoundError(`${ERROR_404}`));
+    const cardId = await Card.findById(req.params.cardId).orFail(() => new NotFoundError(`${ERROR_404}`));
+    return res.status(http2.constants.HTTP_STATUS_OK).send(cardId);
   } catch (error) {
     if (error.name === "CastError") {
       return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST)
