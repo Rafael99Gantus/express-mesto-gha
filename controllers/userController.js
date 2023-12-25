@@ -43,7 +43,7 @@ module.exports.postUser = async (req, res) => {
     const newUser = await User.create({ name, about, avatar });
     return res.status(http2.constants.HTTP_STATUS_OK).send(newUser);
   } catch (error) {
-    if (error.name === "CastError") {
+    if (error.name === "ValidationError") {
       return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST)
         .send({ message: ERROR_400 });
     }
