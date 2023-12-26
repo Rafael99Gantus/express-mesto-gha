@@ -1,4 +1,5 @@
 const express = require("express");
+const http2 = require("http2");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const { routerUsers, routerCards } = require("./routes/index");
@@ -21,15 +22,13 @@ app.use((req, res, next) => {
     _id: "65848aec59f92c95bec45120",
   };
 
-  app.use(() => {
-    res.status(404).json({ message: "Страница не найдена" });
-  });
-
   next();
 });
 app.use("/users", routerUsers);
 app.use("/cards", routerCards);
-
+app.use("*", (req, res) => {
+  res.status(http2.constants.HTTP_STATUS_NOT_FOUND).json({ message: "Страница не найдена" });
+});
 app.listen(PORT, () => {
   console.log(`Ссылка на сервер: ${PORT}`);
 });
