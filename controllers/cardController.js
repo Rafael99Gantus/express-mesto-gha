@@ -32,7 +32,7 @@ module.exports.getCardsId = async (req, res) => {
         .send({ message: ERROR_400 });
     }
     if (error.name === "NotFoundError") {
-      return res.status(404)
+      return res.status(http2.constants.HTTP_STATUS_NOT_FOUND)
         .send({ message: ERROR_404 });
     }
     return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
@@ -52,7 +52,7 @@ module.exports.deleteCard = async (req, res) => {
         .send({ message: ERROR_400 });
     }
     if (error.name === "NotFoundError") {
-      return res.status(404)
+      return res.status(http2.constants.HTTP_STATUS_NOT_FOUND)
         .send({ message: ERROR_404 });
     }
     return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
