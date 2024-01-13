@@ -18,10 +18,12 @@ mongoose.connect("mongodb://127.0.0.1:27017/mestodb")
   .catch((err) => {
     console.error("Ошибка подключения:", err.message);
   });
-app.use("/users", routerUsers);
-app.use("/cards", routerCards);
+
 app.post("/signin", login);
 app.post("/signup", postUser);
+
+app.use("/users", routerUsers);
+app.use("/cards", routerCards);
 app.use("*", (req, res) => {
   res.status(http2.constants.HTTP_STATUS_NOT_FOUND).json({ message: "Страница не найдена" });
 });

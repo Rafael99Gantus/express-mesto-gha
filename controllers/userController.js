@@ -106,3 +106,7 @@ module.exports.login = async (req, res) => {
     return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: ERROR_500 });
   }
 };
+
+module.exports.getMe = async (req, res) => {
+
+};
