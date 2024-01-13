@@ -3,6 +3,7 @@ const http2 = require("http2");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
 const { routerUsers, routerCards } = require("./routes/index");
+const { postUser, login } = require("./controllers/userController");
 
 const { PORT = 3000 } = process.env;
 
@@ -17,15 +18,10 @@ mongoose.connect("mongodb://127.0.0.1:27017/mestodb")
   .catch((err) => {
     console.error("Ошибка подключения:", err.message);
   });
-app.use((req, res, next) => {
-  req.user = {
-    _id: "65848aec59f92c95bec45120",
-  };
-
-  next();
-});
 app.use("/users", routerUsers);
 app.use("/cards", routerCards);
+app.post("/signin", login);
+app.post("/signup", postUser);
 app.use("*", (req, res) => {
   res.status(http2.constants.HTTP_STATUS_NOT_FOUND).json({ message: "Страница не найдена" });
 });
