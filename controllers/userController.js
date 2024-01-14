@@ -13,6 +13,8 @@ const ERROR_500 = "Произошла ошибка";
 
 const ERROR_404 = "Пользователь не найден";
 
+const ERROR_401 = "Отсутствие токена";
+
 const ERROR_400 = "Переданы некорректные данные";
 
 const ERROR_11000 = "Такой пользователь уже существует";
@@ -25,6 +27,11 @@ module.exports.getUsers = async (req, res) => {
     const users = await User.find({});
     return res.status(http2.constants.HTTP_STATUS_OK).send(users);
   } catch (error) {
+    if (error.name === "UnauthorizedError") {
+      return res
+        .status(http2.constants.HTTP_STATUS_DENIED)
+        .json({ message: ERROR_401 });
+    }
     return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
       .send({ message: ERROR_500 });
   }
@@ -91,7 +98,7 @@ module.exports.login = async (req, res) => {
       return Promise.reject(new Error("Неправильные почта или пароль"));
     }
     const token = jwt.sign({ _id: user._id }, "some-secret-key", { expiresIn: "7d" });
-    return res.status(http2.constants.HTTP_STATUS_OK).send({ token });
+    return res.status(http2.constants.HTTP_STATUS_OK).send({ token, message: "Пользователь авторизован" });
   } catch (error) {
     if (error.name === "ValidationError") {
       return res
