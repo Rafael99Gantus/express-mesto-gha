@@ -15,6 +15,10 @@ const ERROR_404 = "Пользователь не найден";
 
 const ERROR_400 = "Переданы некорректные данные";
 
+const ERROR_11000 = "Такой пользователь уже существует";
+
+const MONGO_DUBLICATE_ERROR_CODE = 11000;
+
 module.exports.getUsers = async (req, res) => {
   try {
     console.log("getUsers");
@@ -33,12 +37,14 @@ module.exports.getUsersId = async (req, res) => {
     return res.status(http2.constants.HTTP_STATUS_OK).send(userId);
   } catch (error) {
     if (error.name === "CastError") {
-      return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST)
-        .send({ message: ERROR_400 });
+      return res
+        .status(http2.constants.HTTP_STATUS_BAD_REQUEST)
+        .json({ message: ERROR_400 });
     }
     if (error.name === "NotFoundError") {
-      return res.status(http2.constants.HTTP_STATUS_NOT_FOUND)
-        .send({ message: ERROR_404 });
+      return res
+        .status(http2.constants.HTTP_STATUS_NOT_FOUND)
+        .json({ message: ERROR_404 });
     }
     return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: ERROR_500, error: error.name });
   }
@@ -47,26 +53,25 @@ module.exports.getUsersId = async (req, res) => {
 module.exports.postUser = async (req, res) => {
   try {
     console.log("postUser");
-    const { name, about, avatar } = req.body;
-    const newUser = await User.create({ name, about, avatar });
-    bcrypt.hash(req.body.password, 10)
-      .then((hash) => User.create({
-        email: req.body.email,
-        password: hash,
-      }))
-      .then((user) => {
-        res.status(201).send({
-          _id: user._id, email: user.email,
-        });
-      })
-      .catch(() => {
-        res.status(400).send(ERROR_400);
-      });
-    return res.status(http2.constants.HTTP_STATUS_OK).send(newUser);
+    const hashPassword = await bcrypt.hash(req.body.password, 10);
+    const newUser = await User.create({
+      name: req.body.name,
+      about: req.body.about,
+      avatar: req.body.avatar,
+      email: req.body.email,
+      password: hashPassword,
+    });
+    return res.status(http2.constants.HTTP_STATUS_OK).json(newUser);
   } catch (error) {
     if (error.name === "ValidationError") {
-      return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST)
-        .send({ message: ERROR_400 });
+      return res
+        .status(http2.constants.HTTP_STATUS_BAD_REQUEST)
+        .json({ message: ERROR_400 });
+    }
+    if (error.code === MONGO_DUBLICATE_ERROR_CODE) {
+      return res
+        .status(http2.constants.HTTP_STATUS_CONFLICT)
+        .json({ message: ERROR_11000 });
     }
     return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: ERROR_500 });
   }
@@ -76,33 +81,27 @@ module.exports.login = async (req, res) => {
   try {
     console.log("login");
     const { email, password } = req.body;
-    User.findOne({ email }).select("+password")
-      .then((user) => {
-        if (!user) {
-          return Promise.reject(new Error("Неправильные почта или пароль"));
-        }
-        return bcrypt.compare(password, user.password);
-      })
-      .then((matched) => {
-        if (!matched) {
-          // хеши не совпали — отклоняем промис
-          return Promise.reject(new Error("Неправильные почта или пароль"));
-        }
-        // аутентификация успешна
-        return User.findUserByCredentials(email, password)
-          .then((user) => {
-            // создадим токен
-            const token = jwt.sign({ _id: user._id }, "some-secret-key", { expiresIn: "7d" });
-
-            // вернём токен
-            res.send({ token });
-          });
-      });
-    return res.status(http2.constants.HTTP_STATUS_OK).send("All okey");
+    const user = await User.findOne({ email }).select("+password");
+    if (!user) {
+      return Promise.reject(new Error("Неправильные почта или пароль"));
+    }
+    const matched = await bcrypt.compare(password, user.password);
+    if (!matched) {
+      // хеши не совпали — отклоняем промис
+      return Promise.reject(new Error("Неправильные почта или пароль"));
+    }
+    const token = jwt.sign({ _id: user._id }, "some-secret-key", { expiresIn: "7d" });
+    return res.status(http2.constants.HTTP_STATUS_OK).send({ token });
   } catch (error) {
     if (error.name === "ValidationError") {
-      return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST)
-        .send({ message: ERROR_400 });
+      return res
+        .status(http2.constants.HTTP_STATUS_BAD_REQUEST)
+        .json({ message: ERROR_400 });
+    }
+    if (error.code === MONGO_DUBLICATE_ERROR_CODE) {
+      return res
+        .status(http2.constants.HTTP_STATUS_CONFLICT)
+        .json({ message: ERROR_11000 });
     }
     return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: ERROR_500 });
   }
@@ -110,9 +109,15 @@ module.exports.login = async (req, res) => {
 
 module.exports.getMe = async (req, res) => {
   try {
-    console.log("getUsers");
-    const me = await User.find({});
-    return res.status(http2.constants.HTTP_STATUS_OK).send(me);
+    console.log("getMe");
+    const userId = req.user._id;
+    const me = await User.find({ userId });
+    return res.status(http2.constants.HTTP_STATUS_OK).json({
+      name: me.name,
+      email: me.email,
+      about: me.about,
+      avatar: me.avatar,
+    });
   } catch (error) {
     return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
       .send({ message: ERROR_500 });
