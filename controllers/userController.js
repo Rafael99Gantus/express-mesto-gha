@@ -1,9 +1,9 @@
 /* eslint-disable max-len */
 const http2 = require("http2");
 
-const bcrypt = require('bcryptjs');
+const bcrypt = require("bcrypt");
 
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
 const User = require("../models/user");
 
@@ -98,6 +98,7 @@ module.exports.login = async (req, res) => {
             res.send({ token });
           });
       });
+    return res.status(http2.constants.HTTP_STATUS_OK).send("All okey");
   } catch (error) {
     if (error.name === "ValidationError") {
       return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST)
@@ -108,5 +109,12 @@ module.exports.login = async (req, res) => {
 };
 
 module.exports.getMe = async (req, res) => {
-
+  try {
+    console.log("getUsers");
+    const me = await User.find({});
+    return res.status(http2.constants.HTTP_STATUS_OK).send(me);
+  } catch (error) {
+    return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
+      .send({ message: ERROR_500 });
+  }
 };
