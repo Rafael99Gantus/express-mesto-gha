@@ -1,12 +1,14 @@
 const express = require("express");
 const mongoose = require("mongoose");
 
+const http2 = require("http2");
+
 const { routerUsers, routerCards } = require("./routes/index");
 const { postUser, login } = require("./controllers/userController");
 
 const { PORT = 3000 } = process.env;
 
-const NotFoundError = require("./utils/NotFoundError");
+const ERROR_404 = "Страница не найдена, некорректный запрос";
 
 const app = express();
 app.use(express.json());
@@ -24,8 +26,10 @@ app.post("/signup", postUser);
 
 app.use("/users", routerUsers);
 app.use("/cards", routerCards);
-app.use("*", (req, res, next) => {
-  next(new NotFoundError("Страница не найдена"));
+app.use("*", (req, res) => {
+  res
+    .status(http2.constants.HTTP_STATUS_NOT_FOUND)
+    .json({ message: ERROR_404 });
 });
 app.listen(PORT, () => {
   console.log(`Ссылка на сервер: ${PORT}`);

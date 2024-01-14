@@ -8,7 +8,7 @@ const ERROR_500 = "Произошла ошибка";
 
 const ERROR_404 = "Карточка не найдена";
 
-const ERROR_400 = "Переданы некорректные данные";
+const ERROR_400 = "Переданы некорректные данные в поля name и link";
 
 module.exports.getCards = async (req, res) => {
   try {
