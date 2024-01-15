@@ -4,7 +4,7 @@ class UnauthorizedError extends Error {
   constructor(message) {
     super(message);
     this.name = "UnauthorizedError";
-    this.status = http2.constants.HTTP_STATUS_UNAUTHORIZED;
+    this.status = http2.constants.HTTP_STATUS_UNAUTHORIZED; // 401
 
     console.log(`UnauthorizedError: ${message}`);
   }
