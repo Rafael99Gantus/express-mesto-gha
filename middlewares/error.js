@@ -14,7 +14,11 @@ const errorHandler = (err, req, res, next) => {
       .json({ message: "Такой пользователь уже существует" });
   }
 
-
+  if (err.name === "JsonWebTokenError") {
+    return res
+      .status(http2.constants.HTTP_STATUS_UNAUTHORIZED)
+      .json({ message: "Отсутствует токен" });
+  }
 
   if (err.name === "CastError") {
     return res
