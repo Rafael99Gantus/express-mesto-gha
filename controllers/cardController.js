@@ -4,74 +4,46 @@ const Card = require("../models/card");
 
 const NotFoundError = require("../utils/NotFoundError");
 
-const ERROR_500 = "Произошла ошибка";
-
 const ERROR_404 = "Карточка не найдена";
 
-const ERROR_400 = "Переданы некорректные данные в поля name и link";
-
-module.exports.getCards = async (req, res) => {
+module.exports.getCards = async (req, res, next) => {
   try {
     console.log("getCards");
     const cards = await Card.find({});
-    return res.status(http2.constants.HTTP_STATUS_OK).send(cards);
-  } catch (error) {
-    return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-      .send({ message: ERROR_500 });
+    res.status(http2.constants.HTTP_STATUS_OK).send(cards);
+  } catch (err) {
+    next(err);
   }
 };
 
-module.exports.getCardsId = async (req, res) => {
+module.exports.getCardsId = async (req, res, next) => {
   try {
     console.log("getCardsId");
     const cardId = await Card.findById(req.params.cardId).orFail(() => new NotFoundError(`${ERROR_404}`));
-    return res.status(http2.constants.HTTP_STATUS_OK).send(cardId);
-  } catch (error) {
-    if (error.name === "CastError") {
-      return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST)
-        .send({ message: ERROR_400 });
-    }
-    if (error.name === "NotFoundError") {
-      return res.status(http2.constants.HTTP_STATUS_NOT_FOUND)
-        .send({ message: ERROR_404 });
-    }
-    return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-      .send({ message: ERROR_500 });
+    res.status(http2.constants.HTTP_STATUS_OK).send(cardId);
+  } catch (err) {
+    next(err);
   }
 };
 
-module.exports.deleteCard = async (req, res) => {
+module.exports.deleteCard = async (req, res, next) => {
   try {
     const { cardId } = req.params;
     console.log("deleteCard");
     await Card.deleteOne({ _id: cardId }).orFail(() => new NotFoundError(`${ERROR_404}`));
-    return res.status(http2.constants.HTTP_STATUS_OK).json(cardId);
-  } catch (error) {
-    if (error.name === "CastError") {
-      return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST)
-        .send({ message: ERROR_400 });
-    }
-    if (error.name === "NotFoundError") {
-      return res.status(http2.constants.HTTP_STATUS_NOT_FOUND)
-        .send({ message: ERROR_404 });
-    }
-    return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-      .send({ message: ERROR_500, error: error.message });
+    res.status(http2.constants.HTTP_STATUS_OK).json(cardId);
+  } catch (err) {
+    next(err);
   }
 };
 
-module.exports.postCard = async (req, res) => {
+module.exports.postCard = async (req, res, next) => {
   try {
     console.log("postCard");
     const { name, link } = req.body;
     const newCard = await Card.create({ name, link });
-    return res.status(http2.constants.HTTP_STATUS_OK).send(newCard);
-  } catch (error) {
-    if (error.name === "ValidationError") {
-      return res.status(http2.constants.HTTP_STATUS_BAD_REQUEST)
-        .send({ message: ERROR_400 });
-    }
-    return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-      .send({ message: ERROR_500 });
+    res.status(http2.constants.HTTP_STATUS_OK).send(newCard);
+  } catch (err) {
+    next(err);
   }
 };
