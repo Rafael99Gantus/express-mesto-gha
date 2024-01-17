@@ -70,11 +70,11 @@ module.exports.login = async (req, res, next) => {
     // if (!user) {
     //   throw new UnauthorizedError("Неправильные почта или пароль");
     // }
-    await bcrypt.compare(password, user.password).orFail(() => new UnauthorizedError(`${ERROR_404}`));
-    // if (!matched) {
-    //   // хеши не совпали — отклоняем промис
-    //   throw new UnauthorizedError("Неправильные почта или пароль");
-    // }
+    const matched = await bcrypt.compare(password, user.password);
+    if (!matched) {
+      // хеши не совпали — отклоняем промис
+      throw new UnauthorizedError("Почта или пароль неверные");
+    }
     const token = jwt.sign({ _id: user._id }, "some-secret-key", { expiresIn: "7d" });
     res.status(http2.constants.HTTP_STATUS_OK).send({ token, message: "Пользователь авторизован" });
   } catch (err) {

@@ -1,7 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 
-const http2 = require("http2");
+const NotFoundError = require("./utils/NotFoundError");
 
 const { routerUsers, routerCards } = require("./routes/index");
 const { postUser, login } = require("./controllers/userController");
@@ -27,10 +27,8 @@ app.post("/signup", signUpValidation, postUser);
 
 app.use("/users", routerUsers);
 app.use("/cards", routerCards);
-app.use("*", (req, res) => {
-  res
-    .status(http2.constants.HTTP_STATUS_NOT_FOUND)
-    .json({ message: ERROR_404 });
+app.use("*", (req, res, next) => {
+  next(new NotFoundError(`${ERROR_404}`));
 });
 
 app.use(errorHandler);
