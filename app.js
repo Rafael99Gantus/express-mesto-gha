@@ -1,6 +1,6 @@
 const express = require("express");
 const mongoose = require("mongoose");
-
+const { errors } = require("celebrate");
 const NotFoundError = require("./utils/NotFoundError");
 
 const { routerUsers, routerCards } = require("./routes/index");
@@ -30,7 +30,7 @@ app.use("/cards", routerCards);
 app.use("*", (req, res, next) => {
   next(new NotFoundError(`${ERROR_404}`));
 });
-
+app.use(errors());
 app.use(errorHandler);
 
 app.listen(PORT, () => {
