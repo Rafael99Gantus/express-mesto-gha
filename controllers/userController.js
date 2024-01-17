@@ -10,12 +10,7 @@ const User = require("../models/user");
 const NotFoundError = require("../utils/NotFoundError");
 const UnauthorizedError = require("../utils/UnauthorizedError");
 
-// const ERROR_500 = "Произошла ошибка";
 const ERROR_404 = "Пользователь не найден";
-// const ERROR_401 = "Отсутствие токена";
-// const ERROR_400 = "Переданы некорректные данные";
-// const ERROR_11000 = "Такой пользователь уже существует";
-// const MONGO_DUBLICATE_ERROR_CODE = 11000;
 
 module.exports.getUsers = async (req, res, next) => {
   try {
@@ -23,13 +18,6 @@ module.exports.getUsers = async (req, res, next) => {
     const users = await User.find({});
     res.status(http2.constants.HTTP_STATUS_OK).send(users);
   } catch (err) {
-    // if (error.name === "UnauthorizedError") {
-    //   return res
-    //     .status(http2.constants.HTTP_STATUS_DENIED)
-    //     .json({ message: ERROR_401 });
-    // }
-    // return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-    //   .send({ message: ERROR_500 });
     next(err);
   }
 };
@@ -67,12 +55,8 @@ module.exports.login = async (req, res, next) => {
     console.log("login");
     const { email, password } = req.body;
     const user = await User.findOne({ email }).select("+password").orFail(() => new UnauthorizedError(`${ERROR_404}`));
-    // if (!user) {
-    //   throw new UnauthorizedError("Неправильные почта или пароль");
-    // }
     const matched = await bcrypt.compare(password, user.password);
     if (!matched) {
-      // хеши не совпали — отклоняем промис
       throw new UnauthorizedError("Почта или пароль неверные");
     }
     const token = jwt.sign({ _id: user._id }, "some-secret-key", { expiresIn: "7d" });
@@ -80,17 +64,6 @@ module.exports.login = async (req, res, next) => {
   } catch (err) {
     next(err);
   }
-  // if (error.name === "ValidationError") {
-  //   return res
-  //     .status(http2.constants.HTTP_STATUS_BAD_REQUEST)
-  //     .json({ message: ERROR_400 });
-  // }
-  // if (error.code === MONGO_DUBLICATE_ERROR_CODE) {
-  //   return res
-  //     .status(http2.constants.HTTP_STATUS_CONFLICT)
-  //     .json({ message: ERROR_11000 });
-  // }
-  // return res.status(http2.constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: ERROR_500 });
 };
 
 module.exports.getMe = async (req, res, next) => {
