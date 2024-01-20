@@ -10,7 +10,6 @@ const { signUpValidation, signInValidation } = require("./middlewares/celebrate"
 const { requestLogger, errorLogger } = require("./middlewares/logger");
 
 const ERROR_404 = "Страница не найдена, некорректный запрос";
-const { PORT = 3000 } = process.env;
 
 const app = express();
 app.use(express.json());
@@ -40,6 +39,4 @@ app.use(errors()); // обработчик ошибок celebrate
 
 app.use(errorHandler);
 
-app.listen(PORT, () => {
-  console.log(`Ссылка на сервер: ${PORT}`);
-});
+module.exports = app;
